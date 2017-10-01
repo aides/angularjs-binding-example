@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
+    <script>
+      var myApp = angular.module('myApp', []);
+      myApp
+        .directive('innerDirective', function() {
+          return {
+            restrict: 'E',
+            template: '<div>I\'m inner!</div><input type="button" ng-click="vm.click()" value="click me"></input>',
+            scope: {
+              onInnerUpdate: '&',
+            },
+            controller: 'InnerController as vm',
+            bindToController: true,
+          };
+        })
+        .controller('InnerController', function() {
+          var vm = this;
+
+          vm.click = function() {
+            vm.onInnerUpdate({data: 'passed from inside'});
+          }
+        })
+        .directive('outerDirective', function() {
+          return {
+            restrict: 'E',
+            template: '<div>I\'m outer!</div><div>Value: {{vm.value}}</div><inner-directive on-inner-update="vm.onOuterUpdate(data)" />',
+            controller: 'OuterController as vm',
+            bindToController: true,
+          };
+        })
+        .controller('OuterController', function() {
+          var vm = this;
+
+          vm.onOuterUpdate = function(something) {
+            console.log('onOuterUpdate has been called!');
+            vm.value = something || 'default';
+          }
+        });
+    </script>
+  </head>
+  <body ng-app="myApp">
+    <div>
+      <outer-directive />
+    </div>
+  </body>
+</html>
